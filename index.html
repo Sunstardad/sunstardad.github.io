@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sunstardad – Taebong Kim이 만드는 Mac 앱</title>
+<meta name="description" content="Taebong Kim이 만드는 Mac 앱을 모아 둔 곳입니다. 첫 번째 앱은 맥에서 한글(HWP·HWPX) 파일을 여는 무료 뷰어, 한별뷰어입니다.">
+<link rel="canonical" href="https://sunstardad.github.io/">
+<link rel="icon" type="image/png" href="img/icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sunstardad – 별 하나, 띄웠습니다">
+<meta property="og:description" content="Taebong Kim이 만드는 Mac 앱. 첫 번째 별은 한별뷰어입니다.">
+<meta property="og:url" content="https://sunstardad.github.io/">
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('theme'); } catch (e) {}
+    if (t !== 'day' && t !== 'night') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+<style>
+  :root {
+    --bg: #090e22; --bg2: #161c40;
+    --ink-rgb: 244, 234, 213; --accent-rgb: 255, 200, 87;
+    --muted: #8e97bd;
+    --serif: "AppleMyungjo", "Nanum Myeongjo", "Noto Serif KR", "Batang", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Helvetica Neue", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  :root[data-theme="day"] {
+    --bg: #f4ecd9; --bg2: #e9dec4;
+    --ink-rgb: 26, 33, 66; --accent-rgb: 207, 68, 12;
+    --muted: #6f6a56;
+  }
+  :root {
+    --ink: rgb(var(--ink-rgb)); --accent: rgb(var(--accent-rgb));
+    --line: rgba(var(--ink-rgb), .2); --faint: rgba(var(--ink-rgb), .06);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--ink); background: linear-gradient(180deg, var(--bg), var(--bg2)) fixed;
+         font: 17px/1.7 var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .mono { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- top bar ---------- */
+  .bar { position: absolute; top: 0; left: 0; right: 0; z-index: 3; }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 22px; padding-bottom: 22px; }
+  .mark { font-family: var(--mono); font-size: 13px; letter-spacing: .32em; text-decoration: none; }
+  .mark b { color: var(--accent); font-weight: 400; }
+  .tools { display: flex; gap: 8px; }
+  .tools button { font: 12px var(--mono); letter-spacing: .1em; color: var(--ink); background: transparent;
+                  border: 1px solid var(--line); border-radius: 999px; height: 34px; min-width: 34px; padding: 0 12px;
+                  cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .tools button:hover { border-color: var(--accent); color: var(--accent); }
+  .tools svg { width: 15px; height: 15px; fill: currentColor; }
+  :root[data-theme="day"] .i-night, :root[data-theme="night"] .i-day { display: none; }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; min-height: 100vh; min-height: 100svh; overflow: hidden; display: flex; cursor: crosshair; }
+  #sky { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero .wrap { position: relative; z-index: 2; width: 100%; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+                align-items: end; gap: 24px; padding-top: 96px; padding-bottom: 56px; }
+  .say { position: relative; z-index: 1; }
+  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(56px, 10.5vw, 156px); line-height: 1.04;
+       letter-spacing: -.04em; margin: 14px 0 26px; word-break: keep-all; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lead { font-size: clamp(17px, 1.6vw, 21px); max-width: 30em; margin: 0 0 30px; color: rgba(var(--ink-rgb), .86); }
+  .lead a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  .go { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; letter-spacing: .12em;
+        text-decoration: none; border: 1px solid var(--ink); border-radius: 999px; padding: 13px 22px; cursor: pointer; }
+  .go:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .hint { position: absolute; right: 28px; bottom: 22px; z-index: 2; margin: 0; }
+
+  .chart { width: 100%; max-width: 620px; justify-self: end; align-self: center; overflow: visible; }
+  .chart text { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; fill: var(--muted); }
+  .chart .grid { fill: none; stroke: var(--line); stroke-width: 1; opacity: .55; }
+  .chart .link { stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 2 7; fill: none; }
+  .chart .dim circle.dot { fill: rgba(var(--ink-rgb), .55); }
+  .chart .dim circle.ring { fill: none; stroke: var(--line); stroke-dasharray: 2 4; }
+  .chart .first { cursor: pointer; }
+  .chart .first .halo { fill: url(#halo); transform-box: fill-box; transform-origin: center; animation: breathe 4.5s ease-in-out infinite; }
+  .chart .first .ray { stroke: var(--accent); stroke-width: 1; opacity: .5; }
+  .chart .first .body { fill: var(--accent); transform-box: fill-box; transform-origin: center; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+  .chart .first:hover .body { transform: rotate(45deg) scale(1.18); }
+  .chart .first text.name { font-family: var(--serif); font-size: 26px; letter-spacing: -.02em; fill: var(--ink); text-transform: none; }
+  @keyframes breathe { 0%, 100% { transform: scale(.82); opacity: .7; } 50% { transform: scale(1.12); opacity: 1; } }
+
+  /* ---------- sections ---------- */
+  section { padding: 96px 0; border-top: 1px solid var(--line); }
+  h2 { font-family: var(--serif); font-size: clamp(30px, 4.4vw, 54px); line-height: 1.15; letter-spacing: -.03em; margin: 10px 0 44px; }
+
+  .row { display: grid; grid-template-columns: 92px 1fr auto; gap: 28px; align-items: center;
+         padding: 28px 0; border-top: 1px solid var(--line); }
+  .row:last-child { border-bottom: 1px solid var(--line); }
+  .row .no { font-family: var(--mono); font-size: 13px; letter-spacing: .14em; color: var(--accent); }
+  .row .app { display: flex; align-items: center; gap: 20px; }
+  .row img { width: 76px; height: 76px; flex: none; }
+  .row h3 { font-family: var(--serif); font-size: 28px; letter-spacing: -.02em; margin: 0 0 2px; }
+  .row p { margin: 0; color: rgba(var(--ink-rgb), .8); }
+  .row .links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .row .links .go { padding: 10px 16px; font-size: 12px; }
+  .row.empty { color: var(--muted); }
+  .row.empty .no { color: var(--muted); }
+  .row.empty .slot { width: 76px; height: 76px; flex: none; border: 1px dashed var(--line); border-radius: 18px;
+                     display: grid; place-items: center; font-family: var(--serif); font-size: 26px; }
+  .row.empty h3 { font-size: 22px; color: var(--muted); }
+
+  .ways { list-style: none; margin: 0; padding: 0; counter-reset: way; }
+  .ways li { counter-increment: way; display: grid; grid-template-columns: 92px 1fr; gap: 28px;
+             padding: 30px 0; border-top: 1px solid var(--line); }
+  .ways li::before { content: "0" counter(way); font-family: var(--serif); font-size: 54px; line-height: 1; color: var(--accent); }
+  .ways strong { display: block; font-family: var(--serif); font-size: clamp(22px, 2.8vw, 34px); line-height: 1.3; letter-spacing: -.02em; }
+  .ways span { color: rgba(var(--ink-rgb), .78); }
+
+  .hello { text-align: center; }
+  .hello h2 { margin-bottom: 20px; }
+  .hello a.mail { font-family: var(--serif); font-size: clamp(22px, 3.6vw, 40px); color: var(--accent);
+                  text-decoration-thickness: 1px; text-underline-offset: 8px; word-break: break-all; }
+
+  footer { border-top: 1px solid var(--line); padding: 30px 0 56px; font-size: 14px; color: var(--muted); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+  footer p { margin: 0; }
+
+  @media (max-width: 820px) {
+    .wrap { padding: 0 20px; }
+    .hero .wrap { grid-template-columns: minmax(0, 1fr); align-items: end; padding-top: 84px; padding-bottom: 64px; gap: 0; }
+    .chart { order: -1; max-width: 440px; justify-self: center; margin-bottom: 8px; }
+    .hint { right: 20px; bottom: 16px; }
+    section { padding: 64px 0; }
+    .row { grid-template-columns: 1fr; gap: 14px; }
+    .row .links { justify-content: flex-start; }
+    .ways li { grid-template-columns: 1fr; gap: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .chart .first .halo { animation: none; }
+    .chart .first .body { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="mark" href="./" aria-label="Sunstardad">SUN<b>✦</b>STAR<b>·</b>DAD</a>
+    <div class="tools">
+      <button type="button" id="lang" aria-label="Switch to English">EN</button>
+      <button type="button" id="theme" aria-label="낮과 밤 바꾸기">
+        <svg class="i-night" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M4.2 19.8L7 17M17 7l2.8-2.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+        <svg class="i-day" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1c1 6.5 3.5 9 11 11-7.5 2-10 4.500-11 11-1-6.500-3.500-9-11-11 7.500-2 10-4.500 11-11z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="hero" id="hero">
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="say">
+      <p class="mono" data-en="N° 001 — first light, 14 Nov 2026">N° 001 — 2026.11.14 첫 관측</p>
+      <h1 data-en="One &lt;em&gt;star&lt;/em&gt;,&lt;br&gt;now up."><em>별</em> 하나,<br>띄웠습니다.</h1>
+      <p class="lead" data-en="Mac apps made by Taebong Kim. The first star is &lt;a href=&quot;https://sunstardad.github.io/hanbyeolviewer/en/&quot;&gt;Hanbyeol Viewer&lt;/a&gt;, a free viewer that opens Korean HWP files on a Mac.">Taebong Kim이 만드는 Mac 앱입니다. 첫 번째 별은 맥에서 한글 파일을 여는 무료 뷰어, <a href="https://sunstardad.github.io/hanbyeolviewer/">한별뷰어</a>입니다.</p>
+      <a class="go" href="#catalog" data-en="See the catalog ↓">별 목록 보기 ↓</a>
+    </div>
+
+    <svg class="chart" viewBox="0 0 600 520" role="img" aria-label="별자리표: 첫 번째 별 한별뷰어와 아직 이름 없는 별들">
+      <defs>
+        <radialGradient id="halo">
+          <stop offset="0" stop-color="rgb(var(--accent-rgb))" stop-opacity=".55"/>
+          <stop offset=".45" stop-color="rgb(var(--accent-rgb))" stop-opacity=".14"/>
+          <stop offset="1" stop-color="rgb(var(--accent-rgb))" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <g class="grid">
+        <circle cx="300" cy="260" r="110"/><circle cx="300" cy="260" r="190"/><circle cx="300" cy="260" r="255"/>
+        <path d="M300 5v510M45 260h510M120 80l360 360M480 80L120 440"/>
+      </g>
+      <text x="306" y="18">+60°</text><text x="306" y="84">+30°</text><text x="492" y="254">6h</text>
+      <path class="link" d="M270 220 L452 118 L506 356 M270 220 L128 392"/>
+      <g class="dim" transform="translate(452 118)"><circle class="ring" r="11"/><circle class="dot" r="3"/><text x="18" y="4" data-en="N° 002 · unnamed">N° 002 · 이름 없음</text></g>
+      <g class="dim" transform="translate(506 356)"><circle class="ring" r="9"/><circle class="dot" r="2.500"/><text x="-34" y="30">N° 003</text></g>
+      <g class="dim" transform="translate(128 392)"><circle class="ring" r="9"/><circle class="dot" r="2.500"/><text x="-22" y="30">N° 004</text></g>
+      <a class="first" href="https://sunstardad.github.io/hanbyeolviewer/" aria-label="한별뷰어 소개 보기">
+        <g transform="translate(270 220)">
+          <circle class="halo" r="120"/>
+          <path class="ray" d="M0-150V150M-150 0H150"/>
+          <path class="body" d="M0-54C5-14 14-5 54 0 14 5 5 14 0 54-5 14-14 5-54 0-14-5-5-14 0-54z"/>
+          <text class="name" x="40" y="-34" data-en="Hanbyeol Viewer">한별뷰어</text>
+          <text x="41" y="-64">N° 001 · macOS</text>
+        </g>
+      </a>
+    </svg>
+  </div>
+  <p class="hint mono" data-en="Click the sky to add a star">하늘을 누르면 별이 하나 생깁니다</p>
+</div>
+
+<section id="catalog">
+  <div class="wrap">
+    <p class="mono" data-en="Catalog">별 목록</p>
+    <h2 data-en="One so far. More when they are ready.">지금은 하나. 다음 별은 준비되면 띄웁니다.</h2>
+
+    <div class="row">
+      <div class="no">N° 001</div>
+      <div class="app">
+        <img src="img/icon.png" alt="한별뷰어 앱 아이콘" width="76" height="76">
+        <div>
+          <h3 data-en="Hanbyeol Viewer">한별뷰어</h3>
+          <p data-en="Opens HWP and HWPX files on a Mac, converts them to PDF, reads them aloud and translates selected sentences. Free, for macOS 14 or later.">맥에서 한글(HWP·HWPX) 파일을 열고, PDF로 바꾸고, 소리로 읽어 주고, 고른 문장을 번역합니다. 무료, macOS 14 이상.</p>
+        </div>
+      </div>
+      <div class="links">
+        <a class="go" href="https://sunstardad.github.io/hanbyeolviewer/" data-en="About">소개</a>
+        <a class="go" href="https://apps.apple.com/kr/app/id6832940512">Mac App Store</a>
+      </div>
+    </div>
+
+    <div class="row empty">
+      <div class="no">N° 002</div>
+      <div class="app">
+        <div class="slot" aria-hidden="true">?</div>
+        <div><h3 data-en="Not named yet">아직 이름 없는 별</h3></div>
+      </div>
+      <div class="links"></div>
+    </div>
+  </div>
+</section>
+
+<section id="ways">
+  <div class="wrap">
+    <p class="mono" data-en="How I build">만드는 방식</p>
+    <h2 data-en="How I build, for now.">지금은 이렇게 만듭니다.</h2>
+    <ol class="ways">
+      <li><div><strong data-en="On the device, where possible.">되도록 기기 안에서 처리합니다.</strong>
+          <span data-en="Hanbyeol Viewer converts, reads aloud and translates on your Mac.">한별뷰어는 변환도, 읽어주기도, 번역도 Mac 안에서 합니다.</span></div></li>
+      <li><div><strong data-en="Nothing the app does not need.">필요 없는 것은 넣지 않습니다.</strong>
+          <span data-en="Hanbyeol Viewer has no ads, no account and collects no data.">한별뷰어에는 광고도, 계정도, 수집하는 정보도 없습니다.</span></div></li>
+      <li><div><strong data-en="What it cannot do is written down too.">안 되는 것은 안 된다고 적습니다.</strong>
+          <span data-en="Each app page lists its limits next to its features.">소개 글에 못 하는 일도 함께 씁니다.</span></div></li>
+    </ol>
+    <p class="mono" style="margin-top:28px;text-transform:none;letter-spacing:.04em" data-en="Details differ by app and version. Each app's privacy policy has the exact terms.">앱과 버전에 따라 다를 수 있습니다. 정확한 내용은 각 앱의 개인정보 처리방침에 적습니다.</p>
+  </div>
+</section>
+
+<section id="hello" class="hello">
+  <div class="wrap">
+    <p class="mono" data-en="Contact">연락</p>
+    <h2 data-en="Found a bug, or want a feature?">고칠 곳이나 바라는 기능이 있나요?</h2>
+    <a class="mail" href="mailto:xoxodorik@gmail.com">xoxodorik@gmail.com</a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Taebong Kim</p>
+    <p><a href="https://sunstardad.github.io/hanbyeolviewer/privacy.html" data-en="Hanbyeol Viewer privacy policy">한별뷰어 개인정보 처리방침</a></p>
+    <p data-en="Mac, macOS and App Store are trademarks of Apple Inc.">Mac, macOS, App Store는 Apple Inc.의 상표입니다.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var hero = document.getElementById('hero');
+  var canvas = document.getElementById('sky');
+  var ctx = canvas.getContext('2d');
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W = 0, H = 0, stars = [], placed = [], shot = null, nextShot = 4000;
+  var px = 0, py = 0, tx = 0, ty = 0, ink = '244,234,213', accent = '255,200,87', day = false;
+
+  function readColors() {
+    var cs = getComputedStyle(root);
+    ink = cs.getPropertyValue('--ink-rgb').trim() || ink;
+    accent = cs.getPropertyValue('--accent-rgb').trim() || accent;
+    day = root.getAttribute('data-theme') === 'day';
+  }
+
+  function resize() {
+    var r = hero.getBoundingClientRect();
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * d); canvas.height = Math.round(H * d);
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    var n = Math.max(70, Math.min(260, Math.round(W * H / 6500)));
+    stars = [];
+    for (var i = 0; i < n; i++) {
+      var k = Math.random();
+      stars.push({ x: Math.random(), y: Math.random(), r: .35 + k * k * 1.500, p: Math.random() * 6.283, s: .4 + Math.random() * 1.300, d: .15 + Math.random() * .85 });
+    }
+    if (still) draw(0);
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    px += (tx - px) * .05; py += (ty - py) * .05;
+    var i, s, a;
+    for (i = 0; i < stars.length; i++) {
+      s = stars[i];
+      a = day ? .16 + .22 * s.d : (.25 + .75 * (.5 + .5 * Math.sin(t * .001 * s.s + s.p))) * (.35 + .65 * s.d);
+      ctx.fillStyle = 'rgba(' + ink + ',' + a.toFixed(3) + ')';
+      ctx.beginPath();
+      ctx.arc(s.x * W + px * s.d * 22, s.y * H + py * s.d * 22, s.r, 0, 6.283);
+      ctx.fill();
+    }
+    for (i = 0; i < placed.length; i++) {
+      s = placed[i];
+      var age = Math.min(1, (t - s.t) / 700);
+      if (age < 1 && !still) {
+        ctx.strokeStyle = 'rgba(' + accent + ',' + (1 - age).toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(s.x, s.y, 4 + age * 26, 0, 6.283); ctx.stroke();
+      }
+      var q = 5 + 1.500 * Math.sin(t * .002 + s.x);
+      ctx.fillStyle = 'rgb(' + accent + ')';
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y - q); ctx.quadraticCurveTo(s.x, s.y, s.x + q, s.y);
+      ctx.quadraticCurveTo(s.x, s.y, s.x, s.y + q); ctx.quadraticCurveTo(s.x, s.y, s.x - q, s.y);
+      ctx.quadraticCurveTo(s.x, s.y, s.x, s.y - q); ctx.fill();
+    }
+    if (!day && !still) {
+      if (!shot && t > nextShot) {
+        shot = { x: Math.random() * W * .7, y: Math.random() * H * .35, life: 0 };
+      }
+      if (shot) {
+        shot.life += 1; shot.x += 9; shot.y += 3.600;
+        var g = ctx.createLinearGradient(shot.x, shot.y, shot.x - 120, shot.y - 48);
+        var fade = Math.max(0, 1 - shot.life / 55);
+        g.addColorStop(0, 'rgba(' + ink + ',' + fade.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + ink + ',0)');
+        ctx.strokeStyle = g; ctx.lineWidth = 1.500;
+        ctx.beginPath(); ctx.moveTo(shot.x, shot.y); ctx.lineTo(shot.x - 120, shot.y - 48); ctx.stroke();
+        if (shot.life > 55) { shot = null; nextShot = t + 6000 + Math.random() * 9000; }
+      }
+    }
+  }
+
+  function loop(t) { draw(t); requestAnimationFrame(loop); }
+
+  hero.addEventListener('pointermove', function (e) {
+    tx = e.clientX / W - .5; ty = e.clientY / H - .5;
+  });
+  hero.addEventListener('click', function (e) {
+    if (e.target.closest('a, button')) return;
+    var r = hero.getBoundingClientRect();
+    placed.push({ x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() });
+    if (placed.length > 80) placed.shift();
+    if (still) draw(0);
+  });
+  window.addEventListener('resize', resize);
+
+  document.getElementById('theme').addEventListener('click', function () {
+    var t = root.getAttribute('data-theme') === 'day' ? 'night' : 'day';
+    root.setAttribute('data-theme', t);
+    try { localStorage.setItem('theme', t); } catch (e) {}
+    readColors();
+    if (still) draw(0);
+  });
+
+  var langBtn = document.getElementById('lang');
+  langBtn.addEventListener('click', function () {
+    var en = root.lang !== 'en';
+    root.lang = en ? 'en' : 'ko';
+    var nodes = document.querySelectorAll('[data-en]');
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.getAttribute('data-ko') === null) el.setAttribute('data-ko', el.innerHTML);
+      el.innerHTML = en ? el.getAttribute('data-en') : el.getAttribute('data-ko');
+    }
+    langBtn.textContent = en ? '한국어' : 'EN';
+    langBtn.setAttribute('aria-label', en ? '한국어로 보기' : 'Switch to English');
+  });
+
+  readColors();
+  resize();
+  if (!still) requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

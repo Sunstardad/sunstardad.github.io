@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sunstardad – Taebong Kim이 만드는 Mac 앱</title>
-<meta name="description" content="Taebong Kim이 만드는 Mac 앱을 모아 둔 곳입니다. 첫 번째 앱은 맥에서 한글(HWP·HWPX) 파일을 여는 무료 뷰어, 한별뷰어입니다.">
+<meta name="description" content="Taebong Kim이 만드는 Mac 앱을 모아 둔 곳입니다. 맥에서 한글(HWP·HWPX) 파일을 여는 무료 뷰어 한별뷰어와, 지워진 파일을 되찾는 Silver Trace가 있습니다.">
 <link rel="canonical" href="https://sunstardad.github.io/">
 <link rel="icon" type="image/png" href="img/icon.png">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Sunstardad – 별 하나, 띄웠습니다">
-<meta property="og:description" content="Taebong Kim이 만드는 Mac 앱. 첫 번째 별은 한별뷰어입니다.">
+<meta property="og:title" content="Sunstardad – 별 둘, 띄웠습니다">
+<meta property="og:description" content="Taebong Kim이 만드는 Mac 앱. 첫 번째 별은 한별뷰어, 두 번째 별은 Silver Trace입니다.">
 <meta property="og:url" content="https://sunstardad.github.io/">
 <script>
   (function () {
@@ -88,6 +88,8 @@
   .chart .first .body { fill: var(--accent); transform-box: fill-box; transform-origin: center; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
   .chart .first:hover .body { transform: rotate(45deg) scale(1.18); }
   .chart .first text.name { font-family: var(--serif); font-size: 26px; letter-spacing: -.02em; fill: var(--ink); text-transform: none; }
+  .chart .second .halo { animation-delay: -2.2s; }
+  .chart .second text.name { font-size: 20px; }
   @keyframes breathe { 0%, 100% { transform: scale(.82); opacity: .7; } 50% { transform: scale(1.12); opacity: 1; } }
 
   /* ---------- sections ---------- */
@@ -163,13 +165,13 @@
   <canvas id="sky" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="say">
-      <p class="mono" data-en="N° 001 — first light, 14 Nov 2026">N° 001 — 2026.11.14 첫 관측</p>
-      <h1 data-en="One &lt;em&gt;star&lt;/em&gt;,&lt;br&gt;now up."><em>별</em> 하나,<br>띄웠습니다.</h1>
-      <p class="lead" data-en="Mac apps made by Taebong Kim. The first star is &lt;a href=&quot;https://sunstardad.github.io/hanbyeolviewer/en/&quot;&gt;Hanbyeol Viewer&lt;/a&gt;, a free viewer that opens Korean HWP files on a Mac.">Taebong Kim이 만드는 Mac 앱입니다. 첫 번째 별은 맥에서 한글 파일을 여는 무료 뷰어, <a href="https://sunstardad.github.io/hanbyeolviewer/">한별뷰어</a>입니다.</p>
+      <p class="mono" data-en="N° 002 — second light, 16 Nov 2026">N° 002 — 2026.11.16 두 번째 관측</p>
+      <h1 data-en="Two &lt;em&gt;stars&lt;/em&gt;,&lt;br&gt;now up."><em>별</em> 둘,<br>띄웠습니다.</h1>
+      <p class="lead" data-en="Mac apps made by Taebong Kim. The first star is &lt;a href=&quot;https://sunstardad.github.io/hanbyeolviewer/en/&quot;&gt;Hanbyeol Viewer&lt;/a&gt;, a free viewer that opens Korean HWP files on a Mac. The second is &lt;a href=&quot;silvertrace/&quot;&gt;Silver Trace&lt;/a&gt;, which brings back deleted files.">Taebong Kim이 만드는 Mac 앱입니다. 첫 번째 별은 맥에서 한글 파일을 여는 무료 뷰어 <a href="https://sunstardad.github.io/hanbyeolviewer/">한별뷰어</a>, 두 번째 별은 지워진 파일을 되찾는 <a href="silvertrace/">Silver Trace</a>입니다.</p>
       <a class="go" href="#catalog" data-en="See the catalog ↓">별 목록 보기 ↓</a>
     </div>
 
-    <svg class="chart" viewBox="0 0 600 520" role="img" aria-label="별자리표: 첫 번째 별 한별뷰어와 아직 이름 없는 별들">
+    <svg class="chart" viewBox="0 0 600 520" role="img" aria-label="별자리표: 첫 번째 별 한별뷰어, 두 번째 별 Silver Trace, 그리고 아직 이름 없는 별들">
       <defs>
         <radialGradient id="halo">
           <stop offset="0" stop-color="rgb(var(--accent-rgb))" stop-opacity=".55"/>
@@ -183,7 +185,6 @@
       </g>
       <text x="306" y="18">+60°</text><text x="306" y="84">+30°</text><text x="492" y="254">6h</text>
       <path class="link" d="M270 220 L452 118 L506 356 M270 220 L128 392"/>
-      <g class="dim" transform="translate(452 118)"><circle class="ring" r="11"/><circle class="dot" r="3"/><text x="18" y="4" data-en="N° 002 · unnamed">N° 002 · 이름 없음</text></g>
       <g class="dim" transform="translate(506 356)"><circle class="ring" r="9"/><circle class="dot" r="2.500"/><text x="-34" y="30">N° 003</text></g>
       <g class="dim" transform="translate(128 392)"><circle class="ring" r="9"/><circle class="dot" r="2.500"/><text x="-22" y="30">N° 004</text></g>
       <a class="first" href="https://sunstardad.github.io/hanbyeolviewer/" aria-label="한별뷰어 소개 보기">
@@ -195,6 +196,17 @@
           <text x="41" y="-64">N° 001 · macOS</text>
         </g>
       </a>
+      <a class="first second" href="silvertrace/" aria-label="Silver Trace 소개 보기">
+        <g transform="translate(452 118)">
+          <g transform="scale(.5)">
+            <circle class="halo" r="120"/>
+            <path class="ray" d="M0-150V150M-150 0H150"/>
+            <path class="body" d="M0-54C5-14 14-5 54 0 14 5 5 14 0 54-5 14-14 5-54 0-14-5-5-14 0-54z"/>
+          </g>
+          <text class="name" x="22" y="-16">Silver Trace</text>
+          <text x="23" y="-40">N° 002 · macOS</text>
+        </g>
+      </a>
     </svg>
   </div>
   <p class="hint mono" data-en="Click the sky to add a star">하늘을 누르면 별이 하나 생깁니다</p>
@@ -203,7 +215,7 @@
 <section id="catalog">
   <div class="wrap">
     <p class="mono" data-en="Catalog">별 목록</p>
-    <h2 data-en="One so far. More when they are ready.">지금은 하나. 다음 별은 준비되면 띄웁니다.</h2>
+    <h2 data-en="Two so far. More when they are ready.">지금은 둘. 다음 별은 준비되면 띄웁니다.</h2>
 
     <div class="row">
       <div class="no">N° 001</div>
@@ -220,8 +232,23 @@
       </div>
     </div>
 
-    <div class="row empty">
+    <div class="row">
       <div class="no">N° 002</div>
+      <div class="app">
+        <img src="img/silvertrace.png" alt="Silver Trace 앱 아이콘" width="76" height="76">
+        <div>
+          <h3>Silver Trace</h3>
+          <p data-en="Brings back photos, videos and documents from deleted files or a formatted SD card or USB stick. It tells you the odds before it scans. For macOS 14 or later; the app itself is in Korean.">지운 파일이나 포맷한 SD 카드·USB 메모리에서 사진·영상·문서를 되찾습니다. 스캔하기 전에 되찾을 가능성부터 알려 줍니다. macOS 14 이상.</p>
+        </div>
+      </div>
+      <div class="links">
+        <a class="go" href="silvertrace/" data-en="About">소개</a>
+        <a class="go" href="silvertrace/SilverTrace-0.1.0.dmg" data-en="Download">내려받기</a>
+      </div>
+    </div>
+
+    <div class="row empty">
+      <div class="no">N° 003</div>
       <div class="app">
         <div class="slot" aria-hidden="true">?</div>
         <div><h3 data-en="Not named yet">아직 이름 없는 별</h3></div>

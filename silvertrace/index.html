@@ -111,6 +111,14 @@
   html:not([lang="en"]) .frame .en, html[lang="en"] .frame .ko { display: none; }
   .note { margin: 36px 0 0; text-transform: none; letter-spacing: .04em; }
 
+  .origin { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 56px; align-items: center; }
+  .origin .glyph { font-family: var(--serif); font-size: clamp(88px, 12vw, 168px); line-height: 1; letter-spacing: .02em;
+                   color: var(--accent); margin: 0; }
+  .origin .glyph small { display: block; font-family: var(--mono); font-size: 12px; letter-spacing: .2em;
+                         color: var(--muted); margin-top: 14px; text-align: center; }
+  .origin .story p { margin: 0 0 18px; max-width: 34em; font-size: clamp(17px, 1.6vw, 20px); color: rgba(var(--ink-rgb), .86); word-break: keep-all; }
+  .origin .story p:last-child { margin-bottom: 0; }
+
   .hello { text-align: center; }
   .hello h2 { margin-bottom: 20px; }
   .hello a.mail { font-family: var(--serif); font-size: clamp(22px, 3.6vw, 40px); color: var(--accent);
@@ -129,6 +137,8 @@
     .ways li, .cant li { grid-template-columns: 1fr; gap: 8px; }
     .cant li::before { display: none; }
     .steps { grid-template-columns: 1fr; }
+    .origin { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .origin .glyph small { text-align: left; }
     .shots { gap: 44px; }
     .shot { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .shot .frame { order: -1; }
@@ -271,6 +281,20 @@
           <span data-en="Pick the disk, read the verdict, scan, then save what you want to a different disk.">디스크를 고르고 진단을 본 뒤 스캔하고, 되찾을 파일을 다른 디스크에 저장합니다.</span></li>
     </ol>
     <p class="after" data-en="When a scan starts, macOS asks for your administrator password. Reading a disk directly needs that permission; the password goes to macOS, not to the app.">스캔을 시작하면 macOS가 관리자 암호를 묻습니다. 디스크를 직접 읽으려면 이 허락이 필요하기 때문이며, 암호는 앱이 아니라 macOS가 받습니다.</p>
+  </div>
+</section>
+
+<section id="name">
+  <div class="wrap">
+    <p class="mono" data-en="The name">이름</p>
+    <h2 data-en="Named after my first daughter.">이름은 첫째 딸에게서 왔습니다.</h2>
+    <div class="origin">
+      <p class="glyph" aria-hidden="true">銀影<small data-en="silver · shadow">은빛 · 그림자</small></p>
+      <div class="story">
+        <p data-en="My first daughter is called Eunyoung. Write her name as the characters 銀影 and it reads &ldquo;silver shadow&rdquo;, which is close to what this app does.">첫째 딸의 이름은 은영입니다. 그 이름을 한자 銀影, &lsquo;은빛 그림자&rsquo;로 읽어 보면 이 앱이 하는 일과 닮아 있습니다.</p>
+        <p data-en="A deleted file leaves a faint shadow on the disk. Silver Trace follows that silver trace and brings back the photos and documents you thought were gone.">파일을 지워도 디스크에는 희미한 그림자처럼 흔적이 남습니다. Silver Trace는 그 은빛 흔적을 따라가, 사라진 줄 알았던 사진과 문서를 다시 데려옵니다.</p>
+      </div>
+    </div>
   </div>
 </section>
 

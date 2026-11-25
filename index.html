@@ -243,7 +243,7 @@
       </a>
     </svg>
   </div>
-  <p class="hint mono" data-en="Click the sky to add a star — they join into your own constellation">하늘을 누르면 별이 생기고, 이어서 나만의 별자리가 됩니다</p>
+  <p class="hint mono" data-en="Click the sky to add a star">하늘을 누르면 별이 하나 생깁니다</p>
   <p class="tally mono" id="tally" aria-live="polite"></p>
 </div>
 
@@ -507,17 +507,6 @@
       ctx.arc(s.x * W + px * s.d * 22, s.y * H + py * s.d * 22, s.r, 0, 6.283);
       ctx.fill();
     }
-    // Your own constellation: each new star joins the one before it.
-    for (i = 1; i < placed.length; i++) {
-      var p0 = placed[i - 1], p1 = placed[i];
-      var grow = still ? 1 : Math.min(1, (t - p1.t) / 600);
-      ctx.strokeStyle = 'rgba(' + accent + ',' + (day ? .55 : .42) + ')';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 6]);
-      ctx.beginPath(); ctx.moveTo(p0.x, p0.y);
-      ctx.lineTo(p0.x + (p1.x - p0.x) * grow, p0.y + (p1.y - p0.y) * grow); ctx.stroke();
-      ctx.setLineDash([]);
-    }
     for (i = dust.length - 1; i >= 0; i--) {
       var d = dust[i];
       d.life -= 1; d.x += d.vx; d.y += d.vy; d.vy += .015;
@@ -592,7 +581,7 @@
       }
     }
     var n = placed.length, en = root.lang === 'en';
-    tally.textContent = n < 2 ? '' : (en ? 'Your constellation: ' + n + ' stars' : '나만의 별자리 · 별 ' + n + '개');
+    tally.textContent = n < 2 ? '' : (en ? 'Stars you added: ' + n : '띄운 별 ' + n + '개');
     tally.classList.toggle('on', n >= 2);
     if (still) draw(0);
   });

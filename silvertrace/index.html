@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="night">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,16 +12,6 @@
 <meta property="og:description" content="지운 파일이나 포맷한 카드에서 사진·영상·문서를 되찾습니다. 스캔하기 전에 가능성부터 알려 줍니다.">
 <meta property="og:url" content="https://sunstardad.github.io/silvertrace/">
 <meta property="og:image" content="https://sunstardad.github.io/img/silvertrace.png">
-<script>
-  (function () {
-    var t = null;
-    try { t = localStorage.getItem('theme'); } catch (e) {}
-    if (t !== 'day' && t !== 'night') {
-      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
-    }
-    document.documentElement.setAttribute('data-theme', t);
-  })();
-</script>
 <style>
   :root {
     --bg: #090e22; --bg2: #161c40;
@@ -30,11 +20,6 @@
     --serif: "AppleMyungjo", "Nanum Myeongjo", "Noto Serif KR", "Batang", Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Helvetica Neue", sans-serif;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  }
-  :root[data-theme="day"] {
-    --bg: #f4ecd9; --bg2: #e9dec4;
-    --ink-rgb: 26, 33, 66; --accent-rgb: 207, 68, 12;
-    --muted: #6f6a56;
   }
   :root {
     --ink: rgb(var(--ink-rgb)); --accent: rgb(var(--accent-rgb));
@@ -57,7 +42,6 @@
                   cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
   .tools button:hover { border-color: var(--accent); color: var(--accent); }
   .tools svg { width: 15px; height: 15px; fill: currentColor; }
-  :root[data-theme="day"] .i-night, :root[data-theme="night"] .i-day { display: none; }
 
   .top { padding: 56px 0 88px; }
   .top .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 48px; align-items: center; }
@@ -107,7 +91,7 @@
   .frame { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--faint);
            box-shadow: 0 24px 60px rgba(0, 0, 0, .28); }
   .frame img { display: block; width: 100%; height: auto; }
-  :root[data-theme="day"] .frame .night, :root[data-theme="night"] .frame .day { display: none; }
+  .frame .day { display: none; }
   html:not([lang="en"]) .frame .en, html[lang="en"] .frame .ko { display: none; }
   .note { margin: 36px 0 0; text-transform: none; letter-spacing: .04em; }
 
@@ -153,10 +137,6 @@
     <a class="mark" href="../" aria-label="Sunstardad 첫 화면으로">SUN<b>✦</b>STAR<b>·</b>DAD</a>
     <div class="tools">
       <button type="button" id="lang" aria-label="Switch to English">EN</button>
-      <button type="button" id="theme" aria-label="낮과 밤 바꾸기">
-        <svg class="i-night" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M4.2 19.8L7 17M17 7l2.8-2.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
-        <svg class="i-day" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1c1 6.5 3.5 9 11 11-7.5 2-10 4.500-11 11-1-6.500-3.500-9-11-11 7.500-2 10-4.500 11-11z"/></svg>
-      </button>
     </div>
   </div>
 </header>
@@ -318,11 +298,6 @@
 <script>
 (function () {
   var root = document.documentElement;
-  document.getElementById('theme').addEventListener('click', function () {
-    var t = root.getAttribute('data-theme') === 'day' ? 'night' : 'day';
-    root.setAttribute('data-theme', t);
-    try { localStorage.setItem('theme', t); } catch (e) {}
-  });
   var langBtn = document.getElementById('lang');
   langBtn.addEventListener('click', function () {
     var en = root.lang !== 'en';

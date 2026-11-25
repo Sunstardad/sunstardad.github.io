@@ -147,6 +147,7 @@
   }
   #sky { z-index: 1; }
 
+  :root:not([data-theme="day"]) .say h1, :root:not([data-theme="day"]) .say .lead { text-shadow: 0 2px 18px rgba(9, 14, 34, .75); }
   h1 em { background: linear-gradient(100deg, rgb(var(--accent-rgb)) 20%, #fff6d8 45%, rgb(var(--accent-rgb)) 70%);
           background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
           animation: shimmer 5s linear infinite; text-shadow: 0 0 38px rgba(var(--accent-rgb), .35); }
@@ -360,6 +361,18 @@
   var ctx = canvas.getContext('2d');
   var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var W = 0, H = 0, stars = [], placed = [], shot = null, nextShot = 2200, dust = [];
+  // The nebula: a slowly turning spiral of glowing dust on the left, where new stars are born.
+  var nebDim = 1, neb = [], puffs = [], births = [], nextBirth = 1800, NX = 0, NY = 0, NR = 0, born = 0, sprites = {};
+
+  // A soft round glow of one colour, made once and stamped many times.
+  function sprite(rgb) {
+    if (sprites[rgb]) return sprites[rgb];
+    var c = document.createElement('canvas'); c.width = c.height = 64;
+    var g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(' + rgb + ',1)'); gr.addColorStop(.45, 'rgba(' + rgb + ',.35)'); gr.addColorStop(1, 'rgba(' + rgb + ',0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    return (sprites[rgb] = c);
+  }
   var tally = document.getElementById('tally'), chart = document.querySelector('.chart');
   var px = 0, py = 0, tx = 0, ty = 0, ink = '244,234,213', accent = '255,200,87', day = false;
 
@@ -382,12 +395,135 @@
       var k = Math.random();
       stars.push({ x: Math.random(), y: Math.random(), r: .35 + k * k * 1.500, p: Math.random() * 6.283, s: .4 + Math.random() * 1.300, d: .15 + Math.random() * .85 });
     }
+    // Where the nebula sits: the empty sky on the left, behind the words on a phone.
+    var narrow = W < 820;
+    NX = narrow ? W * .5 : W * .2; NY = narrow ? H * .42 : H * .3;
+    NR = Math.min(W, H) * (narrow ? .44 : .42);
+    nebDim = narrow ? .55 : 1;
+    neb = []; puffs = []; births = []; born = 0;
+    var count = narrow ? 700 : 1300;
+    for (var j = 0; j < count; j++) {
+      var rr = .04 + Math.pow(Math.random(), 1.15) * .96;
+      var arm = j % 2;
+      neb.push({ r: rr, a: arm * Math.PI + rr * 4.2 + (Math.random() - .5) * (1.1 - rr * .4),
+                 s: .6 + Math.random() * 1.9, k: Math.random(), tw: Math.random() * 6.283 });
+    }
+    // Clouds of glowing gas along the two arms.
+    for (var q = 0; q < (narrow ? 46 : 70); q++) {
+      var pr = .08 + Math.random() * .9;
+      puffs.push({ r: pr, a: (q % 2) * Math.PI + pr * 4.2 + (Math.random() - .5) * .9,
+                   size: NR * (.12 + Math.random() * .22) * (1.2 - pr * .5), k: Math.random(), tw: Math.random() * 6.283 });
+    }
     if (still) draw(0);
+  }
+
+  // Colours along the radius: a white-gold core, violet arms, teal edges (warmer and softer by day).
+  function nebColor(r, k) {
+    if (day) return r < .18 ? '214,120,60' : (k < .5 ? '196,120,170' : '110,150,200');
+    if (r < .16) return '255,236,200';
+    if (r < .5) return k < .55 ? '170,120,255' : '255,190,120';
+    return k < .6 ? '90,200,220' : '140,110,240';
+  }
+
+  function drawNebula(t) {
+    if (!NR) return;
+    var spin = still ? 0 : t * .00011, tilt = -.35, squash = .52;
+    var ct = Math.cos(tilt), st = Math.sin(tilt);
+    ctx.save();
+    if (!day) ctx.globalCompositeOperation = 'lighter';
+    // The glow of the core.
+    var core = ctx.createRadialGradient(NX, NY, 0, NX, NY, NR * .45);
+    core.addColorStop(0, day ? 'rgba(232,150,90,' + (.4 * nebDim) + ')' : 'rgba(255,226,180,' + (.55 * nebDim) + ')');
+    core.addColorStop(.4, day ? 'rgba(210,140,180,.12)' : 'rgba(150,110,255,.14)');
+    core.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = core;
+    ctx.beginPath(); ctx.ellipse(NX, NY, NR * .62, NR * .62 * .7, tilt, 0, 6.283); ctx.fill();
+    for (var m = 0; m < puffs.length; m++) {
+      var f = puffs[m], fa = f.a + spin * (1 + .35 * (1 - f.r));
+      var fx = Math.cos(fa) * f.r * NR, fy = Math.sin(fa) * f.r * NR * squash;
+      var FX = NX + fx * ct - fy * st, FY = NY + fx * st + fy * ct;
+      ctx.globalAlpha = nebDim * (day ? .13 : .16) * (1 - f.r * .55) * (.75 + .25 * Math.sin(t * .0007 + f.tw));
+      ctx.drawImage(sprite(nebColor(f.r * .9, f.k)), FX - f.size, FY - f.size * .8, f.size * 2, f.size * 1.6);
+    }
+    ctx.globalAlpha = 1;
+    for (var i = 0; i < neb.length; i++) {
+      var p = neb[i];
+      // The inner dust turns a little faster than the outer; the arms keep their shape.
+      var ang = p.a + spin * (1 + .35 * (1 - p.r));
+      var x = Math.cos(ang) * p.r * NR, y = Math.sin(ang) * p.r * NR * squash;
+      var X = NX + x * ct - y * st, Y = NY + x * st + y * ct;
+      var a = nebDim * (day ? .4 : .75) * (1 - p.r * .6) * (.55 + .45 * Math.sin(t * .0015 + p.tw));
+      ctx.fillStyle = 'rgba(' + nebColor(p.r, p.k) + ',' + a.toFixed(3) + ')';
+      ctx.fillRect(X, Y, p.s, p.s);
+    }
+    ctx.restore();
+  }
+
+  // A star condenses in the arms, flares, and drifts out into the sky, where it stays.
+  function drawBirths(t) {
+    if (still || !NR) return;
+    if (t > nextBirth) {
+      var r0 = .18 + Math.random() * .45, a0 = Math.random() * 6.283;
+      births.push({ r: r0, a: a0, t: t });
+      nextBirth = t + 2600 + Math.random() * 2600;
+    }
+    var tilt = -.35, ct = Math.cos(tilt), st = Math.sin(tilt), spin = t * .00011;
+    for (var i = births.length - 1; i >= 0; i--) {
+      var b = births[i], age = (t - b.t) / 1000;
+      var ang = b.a + spin * (1 + .35 * (1 - b.r));
+      // Leaving: the star moves outward and up out of the disc.
+      var out = age > 1.6 ? Math.min(1, (age - 1.6) / 3.2) : 0;
+      var ease = out * out * (3 - 2 * out);
+      var rr = b.r + ease * 1.1;
+      var x = Math.cos(ang) * rr * NR, y = Math.sin(ang) * rr * NR * (.52 + ease * .48) - ease * NR * .35;
+      var X = NX + x * ct - y * st, Y = NY + x * st + y * ct;
+      var col = day ? accent : '255,240,210';
+      if (age < 1.2) {
+        // Gathering: a small cloud brightens and shrinks onto one point.
+        var g = age / 1.2, rad = 26 * (1 - g) + 4;
+        var cl = ctx.createRadialGradient(X, Y, 0, X, Y, rad);
+        cl.addColorStop(0, 'rgba(' + col + ',' + (.25 + g * .6).toFixed(3) + ')');
+        cl.addColorStop(1, 'rgba(' + col + ',0)');
+        ctx.fillStyle = cl; ctx.beginPath(); ctx.arc(X, Y, rad, 0, 6.283); ctx.fill();
+      } else {
+        // The flare, then a star with four short rays that fade as it leaves.
+        var f = age < 1.6 ? (age - 1.2) / .4 : 1;
+        var flare = age < 2.2 ? Math.sin(Math.min(1, (age - 1.2) / 1) * Math.PI) : 0;
+        var len = 6 + flare * 26, glowR = 10 + flare * 30;
+        var gl = ctx.createRadialGradient(X, Y, 0, X, Y, glowR);
+        gl.addColorStop(0, 'rgba(' + col + ',' + (.9 * f).toFixed(3) + ')');
+        gl.addColorStop(1, 'rgba(' + col + ',0)');
+        ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(X, Y, glowR, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = 'rgba(' + col + ',' + (.8 * (1 - ease * .7)).toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(X - len, Y); ctx.lineTo(X + len, Y); ctx.moveTo(X, Y - len); ctx.lineTo(X, Y + len); ctx.stroke();
+        ctx.fillStyle = 'rgba(' + col + ',1)';
+        ctx.beginPath(); ctx.arc(X, Y, 1.8, 0, 6.283); ctx.fill();
+        if (flare > .95 && !b.burst) {
+          b.burst = true;
+          for (var k = 0; k < 14; k++) {
+            var aa = Math.random() * 6.283, v = .6 + Math.random() * 1.6, max = 40 + Math.random() * 30;
+            dust.push({ x: X, y: Y, vx: Math.cos(aa) * v, vy: Math.sin(aa) * v, r: .8 + Math.random() * 1.2, life: max, max: max, gold: true });
+          }
+        }
+      }
+      if (age > 4.8) {
+        // Settled: it joins the twinkling sky for good (the oldest newborns make room).
+        stars.push({ x: X / W, y: Y / H, r: .9 + Math.random() * .6, p: Math.random() * 6.283, s: .5 + Math.random(), d: .2, born: true });
+        born += 1;
+        if (born > 40) {
+          for (var z = 0; z < stars.length; z++) { if (stars[z].born) { stars.splice(z, 1); born -= 1; break; } }
+        }
+        births.splice(i, 1);
+      }
+    }
   }
 
   function draw(t) {
     ctx.clearRect(0, 0, W, H);
     px += (tx - px) * .05; py += (ty - py) * .05;
+    drawNebula(t);
+    drawBirths(t);
     var i, s, a;
     for (i = 0; i < stars.length; i++) {
       s = stars[i];
